@@ -1,5 +1,7 @@
 # work-front
 
+一个work项目的前端部分
+
 ## Project setup
 ```
 npm install
