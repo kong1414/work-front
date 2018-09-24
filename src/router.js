@@ -18,7 +18,7 @@ export default new Router({
     {
       path: '/home',
       name: 'home',
-      component: Home
+      component: home => require(['./views/Home.vue'], resolve)
     },
     {
       path: '/about',
