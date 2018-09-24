@@ -93,7 +93,7 @@ export default {
   },
   methods: {
     loginTypeHandle () {
-      console.info(this.loginType)
+      // console.info(this.loginType)
     },
     handleLogin () {
       if (this.errPasswordCount >= 3) {
