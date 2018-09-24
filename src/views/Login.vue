@@ -66,6 +66,7 @@ export default {
   name: 'login',
   data () {
     return {
+      errPasswordCount: 0,
       timeout: null,
       restaurants: [], // 远程搜索请求数据存放位置
       autocompleteData: '',
@@ -95,6 +96,14 @@ export default {
       console.info(this.loginType)
     },
     handleLogin () {
+      if (this.errPasswordCount >= 3) {
+        this.$message({
+          message: '已记录IP，并限制登陆，请勿暴力破解',
+          type: 'warning'
+        })
+        return
+      }
+      this.fullscreenLoading = true
       let params = {
         account: this.account.name,
         password: md5(this.account.password + this.account.password),
@@ -103,15 +112,17 @@ export default {
       reqLogin(params).then(res => {
         console.info(res)
         if (res.resultCode === ERR_OK) {
+          this.errPasswordCount = 0
           this.$message({
-            duration: 1500,
             message: '登录成功！',
             type: 'success'
           })
-          this.saveUser(res.data)
-          this.saveToken(res.data.token)
-          this._loadMenus()
+          // this.saveUser(res.data)
+          // this.saveToken(res.data.token)
+          // this._loadMenus()
+          this.fullscreenLoading = false
         } else {
+          this.errPasswordCount++
           this.fullscreenLoading = false
         }
       })
