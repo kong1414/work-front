@@ -49,9 +49,9 @@
       </aside>
       <section class="section-container">
         <!--头部-->
-        <el-col :span="24" class="topbar-wrap">
+        <el-col :span="24" class="topbar-wrapper">
           <div class="topbar-title">
-            
+            <!-- 题头-->
           </div>
           <div class="topbar-account">
             <el-dropdown style="padding-right:20px;">
@@ -64,6 +64,18 @@
                 <el-dropdown-item @click.native="logout">退出登录</el-dropdown-item>
               </el-dropdown-menu>
             </el-dropdown>
+          </div>
+        </el-col>
+        <el-col :span="24" class="content-wrapper">
+          <section class="content-wrapper-main">
+            <transition name="fade" mode="out-in">
+              <keep-alive>
+                <router-view></router-view>
+              </keep-alive>
+            </transition>
+          </section>
+          <div class="footer">
+            <span>©2018</span>
           </div>
         </el-col>
       </section>
@@ -147,7 +159,7 @@ export default {
       overflow-y: auto;
       transition: left 0.3s ease-in-out;
       height: 100%;
-      .topbar-wrap {
+      .topbar-wrapper {
         margin: 0;
         padding: 0px;
         height: 64px;
@@ -167,6 +179,28 @@ export default {
         .userinfo-inner {
           cursor: pointer;
           padding-left: 10px;
+        }
+      }
+    }
+    .content-wrapper {
+      position: relative;
+      height: auto !important;
+      min-height: -moz-calc(100% - 64px);
+      min-height: -webkit-calc(100% - 64px);
+      min-height: calc(100% - 64px);
+      background-color: #f0f2f5;
+      box-sizing: border-box;
+      .content-wrapper-main {
+        
+      }
+      .footer {
+        position: absolute;
+        bottom: 24px;
+        width: 100%;
+        text-align: center;
+        span {
+          color: #aaabab;
+          font-size: 14px;
         }
       }
     }
