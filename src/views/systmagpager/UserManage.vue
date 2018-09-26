@@ -2,6 +2,7 @@
 <template>
   <div class="user-page">
     <img alt="Vue logo" src="../../assets/logo.png">
+    <h1>用户管理</h1>
   </div>
 </template>
 

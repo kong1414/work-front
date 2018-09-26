@@ -7,41 +7,42 @@
           <span>管理系统</span>
         </el-row>
         <el-menu
-          default-active="1"
+          default-active="/home/index"
           @open="handleOpen"
           @close="handleClose"
           background-color="#545c64"
           text-color="#fff"
-          active-text-color="#ffd04b">
-          <el-menu-item index="1">
+          active-text-color="#ffd04b"
+          router>
+          <el-menu-item index="/home/index">
             <i class="el-icon-document"></i>
             <span slot="title">首页</span>
           </el-menu-item>
-          <el-menu-item index="2">
+          <el-menu-item index="/home/index">
             <i class="el-icon-upload2"></i>
             <span slot="title">出库管理</span>
           </el-menu-item>
-          <el-menu-item index="3">
+          <el-menu-item index="/home/index">
             <i class="el-icon-download"></i>
             <span slot="title">入库管理</span>
           </el-menu-item>
-          <el-menu-item index="4">
+          <el-menu-item index="/home/index">
             <i class="el-icon-goods"></i>
             <span slot="title">订单管理</span>
           </el-menu-item>
-          <el-menu-item index="5">
+          <el-menu-item index="/home/index">
             <i class="el-icon-news"></i>
             <span slot="title">库存管理</span>
           </el-menu-item>
-          <el-menu-item index="6">
+          <el-menu-item index="/home/usermanage">
             <i class="el-icon-menu"></i>
             <span slot="title">用户管理</span>
           </el-menu-item>
-          <el-menu-item index="7">
+          <el-menu-item index="/home/rolemanage">
             <i class="el-icon-info"></i>
             <span slot="title">角色管理</span>
           </el-menu-item>
-          <el-menu-item index="8">
+          <el-menu-item index="/home/aclmanage">
             <i class="el-icon-setting"></i>
             <span slot="title">权限管理</span>
           </el-menu-item>
@@ -167,7 +168,6 @@ export default {
         background: #fff;
         -webkit-box-shadow: 1px 4px rgba(0, 21, 41, 0.08);
         box-shadow: 1px 4px rgba(0, 21, 41, 0.08);
-        
         .topbar-title {
           float: left;
           text-align: left;
@@ -191,7 +191,7 @@ export default {
       background-color: #f0f2f5;
       box-sizing: border-box;
       .content-wrapper-main {
-        
+
       }
       .footer {
         position: absolute;

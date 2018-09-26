@@ -117,7 +117,7 @@ export default {
             message: '登录成功！',
             type: 'success'
           })
-          this.$router.push({path: '/home/index'})
+          this.$router.push({ path: '/home/index' })
           // this.saveUser(res.data)
           // this.saveToken(res.data.token)
           // this._loadMenus()

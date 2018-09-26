@@ -3,7 +3,9 @@ import Router from 'vue-router'
 // import Home from './views/Home.vue'
 const Home = () => import('./views/Home') // 父组件
 const IndexPage = () => import('./views/Index') // 首页
-const UserManager = () => import('./views/systmagpager/UserManager') // 用户管理
+const UserManage = () => import('./views/systmagpager/UserManage') // 用户管理
+const RoleManage = () => import('./views/systmagpager/RoleManage') // 角色管理
+const AclManage = () => import('./views/systmagpager/AclManage') // 角色管理
 
 Vue.use(Router)
 
@@ -31,7 +33,17 @@ export default new Router({
         {
           path: '/home/usermanage',
           menuName: '用户管理',
-          component: UserManager
+          component: UserManage
+        },
+        {
+          path: '/home/rolemanage',
+          menuName: '角色管理',
+          component: RoleManage
+        },
+        {
+          path: '/home/aclmanage',
+          menuName: '权限管理',
+          component: AclManage
         }
       ]
     }
