@@ -134,7 +134,7 @@ export default {
         let emlist = []
         cb(emlist)
       } else {
-        let params = 'keyWord=' + queryString
+        let params = 'keyword=' + queryString
         reqQueryAccount(params).then(res => {
           if (res.resultCode === 200 && res.data != null) {
             console.info(res)

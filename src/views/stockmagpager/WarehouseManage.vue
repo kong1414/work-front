@@ -11,19 +11,20 @@
     <div class="main">
       <div class="main-header">
         <div>
-          <el-button type="primary">新增仓库</el-button>
-          <el-button type="danger" v-show="isShowDeleteButton">批量删除</el-button>
+          <el-button type="primary" @click="handleAddWarehouse">新增仓库</el-button>
+          <!-- <el-button type="danger" v-show="isShowDeleteButton">批量删除</el-button> -->
         </div>
         <div>
           <el-input style="width: 250px;" v-model.trim.lazy="searchContent" placeholder="请输入内容">
-            <i style="margin: 13px 0 0 0" class="el-icon-search" slot="suffix" @click="handleIconSearchClick"></i>
+            <!-- <i style="margin: 13px 0 0 0" class="el-icon-search" slot="suffix" @click="handleIconSearchClick"></i> -->
           </el-input>
         </div>
       </div>
       <el-table
         :data="tableData"
         @selection-change="handleSelectionChange"
-        style="width: 100%;margin:10px 0">
+        v-loading="loading"
+        style="width: 100%;margin: 10px 0">
         <el-table-column type="selection" width="55">
         </el-table-column>
         <el-table-column label="名称">
@@ -38,33 +39,33 @@
             <span v-show="!scope.row.show">{{scope.row.address}}</span>
           </template>
         </el-table-column>
+        <el-table-column label="状态">
+          <template slot-scope="scope">
+            <div v-if="!scope.row.show">
+              <el-button size="mini" type="success" v-if="scope.row.status === 1" :disable-transitions="false">启用</el-button>
+              <el-button size="mini" type="info" v-if="scope.row.status === 0" :disable-transitions="false">禁用</el-button>
+            </div>
+            <div v-if="scope.row.show">
+              <el-button size="mini" type="success" v-if="scope.row.status === 1" @click="handleStatus(scope.$index, scope.row)">启用</el-button>
+              <el-button size="mini" type="success" v-if="scope.row.status === 0" @click="handleStatus(scope.$index, scope.row)">禁用</el-button>
+            </div>
+          </template>
+        </el-table-column>
         <el-table-column label="备注">
           <template slot-scope="scope">
             <el-input v-show="scope.row.show" size="small" v-model="scope.row.remark" placeholder="请输入备注" :maxlength="50"></el-input>
             <span v-show="!scope.row.show">{{scope.row.remark}}</span>
           </template>
         </el-table-column>
-        <el-table-column label="状态" width="180px">
-          <template slot-scope="scope">
-            <div v-if="!scope.row.show">
-              <el-tag type="success" v-if="scope.row.status === 0" :disable-transitions="false">启用</el-tag>
-              <el-tag type="info" v-if="scope.row.status === 1" :disable-transitions="false">禁用</el-tag>
-            </div>
-            <div v-if="scope.row.show">
-              <el-button size="mini" type="success" :disabled="scope.row.status === 0" @click="handleStatus(scope.$index, scope.row)">启用</el-button>
-              <el-button size="mini" type="success" :disabled="scope.row.status === 1" @click="handleStatus(scope.$index, scope.row)">禁用</el-button>
-            </div>
-          </template>
-        </el-table-column>
-        <el-table-column label="操作">
+        <el-table-column label="操作" width="220px" fixed="right">
           <template slot-scope="scope">
             <div v-if="scope.row.show">
               <el-button
                 size="mini"
                 @click="handleSave(scope.$index, scope.row)">保存</el-button>
               <el-button
-              size="mini"
-              @click="handleCancel(scope.$index, scope.row)">取消</el-button>
+                size="mini"
+                @click="handleCancel(scope.$index, scope.row)">取消</el-button>
             </div>
             <div v-else>
               <el-button
@@ -72,7 +73,7 @@
                 @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
               <el-button
                 size="mini"
-                @click="handleDetail(scope.$index, scope.row)">库存</el-button>
+                @click="handleDetail(scope.$index, scope.row)">详情</el-button>
               <el-button
                 size="mini"
                 type="danger"
@@ -86,38 +87,22 @@
 </template>
 
 <script>
-// import { reqWarehouseList } from '../../api/stock.js'
+import { reqWarehouseList, reqDelWarehouse, reqUpdateWarehouse, reqAddWarehouse } from '../../api/stock.js'
 export default {
   name: 'warehousemanager',
   data () {
     return {
+      loading: false,
       ids: [],
       isShowDeleteButton: false, // 批量删除
       itemData: {}, // 编辑的暂存对象
       searchContent: '',
-      tableData: [
-        {
-          id: 123,
-          name: '中央仓库',
-          address: '中央仓库地址',
-          remark: '备注',
-          status: 1,
-          show: false
-        },
-        {
-          id: 123456,
-          name: '中央仓库2号',
-          address: '中央仓库2号地址',
-          remark: '备注',
-          status: 1,
-          show: false
-        }
-      ]
+      tableData: []
     }
   },
   watch: {
-    ids: function () {
-      console.info(this.ids)
+    ids () {
+      // console.info(this.ids)
       if (this.ids.length > 0) {
         this.isShowDeleteButton = true
       } else {
@@ -125,7 +110,13 @@ export default {
       }
     },
     searchContent () {
-      this._loadData()
+      let timer
+      if (timer) { // 优化搜索请求
+        clearTimeout(timer)
+      }
+      timer = setTimeout(() => {
+        this._loadData()
+      }, 500)
     }
   },
   created () {
@@ -133,18 +124,22 @@ export default {
   },
   methods: {
     _loadData () {
-      console.info(this.searchContent)
+      this.loading = true
       let params = 'keyword=' + this.searchContent
-      console.info(params)
-      // reqWarehouseList(params).then(res => {
-      //   if (res.resultCode === 200) {
-      //     this.tableData = res.data
-      //     console.info(this.tableData)
-      //   }
-      // })
+      reqWarehouseList(params).then(res => {
+        if (res.resultCode === 200) {
+          res.data.forEach(element => {
+            element.show = false
+          })
+          this.tableData = res.data
+          this.loading = false
+          console.info(this.tableData)
+        }
+      })
     },
-    handleIconSearchClick () {
-
+    handleAddWarehouse () {
+      let item = { id: '', name: '', address: '', status: 1, remark: '', show: true }
+      this.tableData.splice(0, 0, item)
     },
     handleSelectionChange (checkList) { // 选中表格框时触发
       if (checkList.length === 0) {
@@ -160,18 +155,63 @@ export default {
     handleEdit (index, row) {
       row.show = !row.show
       this.itemData = JSON.parse(JSON.stringify(row))
-      console.info(index, row)
+      // console.info(index, row)
     },
     handleDelete (index, row) {
-      console.info(index, row)
+      let params = 'id=' + row.id
+      reqDelWarehouse(params).then(res => {
+        if (res.resultCode === 200) {
+          this.$message({
+            type: 'success',
+            message: res.resultMessage
+          })
+          this._loadData()
+          // console.info(index, row)
+        }
+      })
     },
     handleSave (index, row) {
-      row.show = false
-      row = JSON.parse(JSON.stringify(this.itemData))
-      console.info(index, row)
+      if (row.id === '' || row.id === null) { // 新增角色的保存
+        let params = {
+          name: row.name,
+          address: row.address,
+          status: row.status,
+          remark: row.remark
+        }
+        reqAddWarehouse(params).then(res => {
+          if (res.resultCode === 200) {
+            row.show = false
+            this.$message({
+              type: 'success',
+              message: res.resultMessage
+            })
+            this._loadData()
+          }
+        })
+      } else { // 更新角色
+        row.show = false
+        // row = JSON.parse(JSON.stringify(this.itemData))
+        // console.info(row)
+        let params = {
+          id: row.id,
+          name: row.name,
+          address: row.address,
+          status: row.statue,
+          remark: row.remark
+        }
+        reqUpdateWarehouse(params).then(res => {
+          if (res.resultCode === 200) {
+            this.$message({
+              type: 'success',
+              message: res.resultMessage
+            })
+            this._loadData()
+          }
+        })
+      }
     },
     handleCancel (index, row) {
-      console.info(index, row)
+      // console.info(index, row)
       if (!row.id) {
         this.tableData.splice(index, 1)
       }
@@ -179,6 +219,10 @@ export default {
       row.show = false
     },
     handleDetail (index, row) {
+      this.$message({
+        type: 'info',
+        message: '正在开发，敬请期待'
+      })
       console.info(index, row)
     },
     handleStatus (index, row) {
