@@ -11,11 +11,11 @@
     <div class="main">
       <div class="main-header">
         <div>
-          <el-button type="primary">新增角色</el-button>
+          <el-button type="primary" @click="handleAddRole">新增角色</el-button>
           <el-button type="danger">批量删除</el-button>
         </div>
         <div>
-          <el-input style="width: 250px;" v-model.trim="searchContent" placeholder="请输入内容">
+          <el-input style="width: 250px;" v-model.trim.lazy="searchContent" placeholder="请输入内容">
             <i style="margin: 13px 0 0 0" class="el-icon-search" slot="suffix" @click="handleIconSearchClick"></i>
           </el-input>
         </div>
@@ -45,12 +45,12 @@
         <el-table-column label="状态">
           <template slot-scope="scope">
             <div v-if="!scope.row.show">
-              <el-tag type="success" v-if="scope.row.status === 0" disable-transitions="false">启用</el-tag>
-              <el-tag type="info" v-if="scope.row.status === 1" disable-transitions="false">禁用</el-tag>
+              <el-button size="mini" type="success" v-if="scope.row.status === 0" :disable-transitions="false">启用</el-button>
+              <el-button size="mini" type="info" v-if="scope.row.status === 1" :disable-transitions="false">禁用</el-button>
             </div>
             <div v-if="scope.row.show">
-              <el-button size="mini" type="success" :disabled="scope.row.status === 0" @click="handleStatus(scope.$index, scope.row)">启用</el-button>
-              <el-button size="mini" type="success" :disabled="scope.row.status === 1" @click="handleStatus(scope.$index, scope.row)">禁用</el-button>
+              <el-button size="mini" type="success" v-if="scope.row.status === 1" @click="handleStatus(scope.$index, scope.row)">启用</el-button>
+              <el-button size="mini" type="success" v-if="scope.row.status === 0" @click="handleStatus(scope.$index, scope.row)">禁用</el-button>
             </div>
           </template>
         </el-table-column>
@@ -62,9 +62,10 @@
         </el-table-column>
         <el-table-column
           prop="userCteate"
-          label="创建人">
+          label="创建人"
+          width="120px">
         </el-table-column>
-        <el-table-column label="操作">
+        <el-table-column label="操作" width="220px" fixed="right">
           <template slot-scope="scope">
             <div v-if="scope.row.show">
               <el-button
@@ -80,7 +81,7 @@
                 @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
               <el-button
                 size="mini"
-                @click="handleEdit(scope.$index, scope.row)">权限配置</el-button>
+                @click="handleAcl(scope.$index, scope.row)">权限</el-button>
               <el-button
                 size="mini"
                 type="danger"
@@ -91,50 +92,64 @@
       </el-table>
     </div>
     <el-dialog
-      title="新增角色"
-      :visible.sync="AddRoleDialogVisible"
-      width="30%"
-      :before-close="handleClose">
+      title="权限配置"
+      :visible.sync="AclDialogVisible"
+      width="30%">
       <span>这是一段信息</span>
       <span slot="footer" class="dialog-footer">
-        <el-button @click="dialogVisible = false">取 消</el-button>
-        <el-button type="primary" @click="dialogVisible = false">确 定</el-button>
+        <el-button @click="AclDialogVisible = false">取 消</el-button>
+        <el-button type="primary" @click="AclDialogVisible = false">确 定</el-button>
       </span>
     </el-dialog>
   </div>
 </template>
 
 <script>
+import { reqRoleList, reqUpdateRole } from '../../api/sysManager.js'
 export default {
   name: 'rolemanager',
   data () {
     return {
-      AddRoleDialogVisible: false, // 新增角色弹窗是否显示的参数
+      ids: [],
+      AclDialogVisible: false, // 权限配置弹窗是否显示的参数
       itemData: {}, // 编辑的暂存对象
       searchContent: '',
-      tableData: [
-        {
-          id: 123,
-          name: '总经理',
-          type: 1,
-          status: 1,
-          remark: '这是一个总经理',
-          userCteate: 'admin',
-          show: false
-        },
-        {
-          id: 1234,
-          name: '总经理2',
-          type: 1,
-          status: 0,
-          remark: '这是一个总经理',
-          userCteate: 'admin',
-          show: false
-        }
-      ]
+      tableData: []
     }
   },
+  watch: {
+    searchContent () {
+      this._loadData()
+    }
+  },
+  created () {
+    this._loadData()
+  },
   methods: {
+    _loadData () {
+      let params = ''
+      console.info(this.searchContent)
+      if (this.searchContent.length > 0) {
+        params = 'keyword=' + this.searchContent
+      }
+      reqRoleList(params).then(res => {
+        if (res.resultCode === 200) {
+          // res.date.map(e => {
+          //   e.show = false
+          // })
+          res.data.forEach(element => {
+            element.show = false
+          })
+
+          this.tableData = res.data
+          console.info(123, this.tableData)
+        }
+      })
+    },
+    handleAddRole () {
+      let item = { id: '', name: '', type: 0, status: 1, remark: '', show: true }
+      this.tableData.splice(0, 0, item)
+    },
     handleIconSearchClick () {
 
     },
@@ -142,6 +157,7 @@ export default {
       console.info(e)
     },
     handleEdit (index, row) {
+      console.info(1232, row)
       row.show = !row.show
       this.itemData = JSON.parse(JSON.stringify(row))
       console.info(index, row)
@@ -150,9 +166,28 @@ export default {
       console.info(index, row)
     },
     handleSave (index, row) {
-      row.show = false
-      row = JSON.parse(JSON.stringify(this.itemData))
-      console.info(index, row)
+      if (row.id === '' || row.id === null) { // 新增角色的保存
+
+      } else { // 更新角色
+        row.show = false
+        // row = JSON.parse(JSON.stringify(this.itemData))
+        // console.info(row)
+        let params = {
+          id: row.id,
+          type: row.type,
+          status: row.status,
+          remark: row.remark
+        }
+        reqUpdateRole(params).then(res => {
+          if (res.resultCode === 200) {
+            // this.$message({
+            //   type: 'success',
+            //   message: res.message
+            // })
+            this._loadData()
+          }
+        })
+      }
     },
     handleCancel (index, row) {
       console.info(index, row)
@@ -161,6 +196,9 @@ export default {
       }
       Object(row, this.itemData)
       row.show = false
+    },
+    handleAcl (index, row) {
+      this.AclDialogVisible = true
     },
     handleStatus (index, row) {
       if (row.status === 1) {

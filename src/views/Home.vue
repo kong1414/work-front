@@ -39,7 +39,7 @@
           <i class="el-icon-document"></i>
           <span slot="title">首页</span>
         </el-menu-item>
-        <el-menu-item index="/home/index">
+        <!-- <el-menu-item index="/home/index">
           <i class="el-icon-upload2"></i>
           <span slot="title">出库管理</span>
         </el-menu-item>
@@ -50,25 +50,26 @@
         <el-menu-item index="/home/index">
           <i class="el-icon-goods"></i>
           <span slot="title">订单管理</span>
-        </el-menu-item>
-        <el-menu-item index="/home/index">
+        </el-menu-item> -->
+        <el-menu-item index="/home/warehouse">
           <i class="el-icon-news"></i>
           <span slot="title">库存管理</span>
         </el-menu-item>
-        <el-menu-item-group title="系统管理">
-          <el-menu-item index="/home/usermanage">
+        <el-submenu index="">
+          <template slot="title">
             <i class="el-icon-menu"></i>
+            <span slot="title">系统管理</span>
+          </template>
+          <el-menu-item index="/home/usermanage">
             <span slot="title">用户管理</span>
           </el-menu-item>
           <el-menu-item index="/home/rolemanage">
-            <i class="el-icon-info"></i>
             <span slot="title">角色管理</span>
           </el-menu-item>
           <el-menu-item index="/home/aclmanage">
-            <i class="el-icon-setting"></i>
             <span slot="title">权限管理</span>
           </el-menu-item>
-        </el-menu-item-group>
+        </el-submenu>
       </el-menu>
       <el-container>
         <el-main>
