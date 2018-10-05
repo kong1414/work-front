@@ -39,7 +39,7 @@
           <i class="el-icon-document"></i>
           <span slot="title">首页</span>
         </el-menu-item>
-        <el-menu-item index="/home/index">
+        <!-- <el-menu-item index="/home/index">
           <i class="el-icon-upload2"></i>
           <span slot="title">出库管理</span>
         </el-menu-item>
@@ -50,7 +50,7 @@
         <el-menu-item index="/home/index">
           <i class="el-icon-goods"></i>
           <span slot="title">订单管理</span>
-        </el-menu-item>
+        </el-menu-item> -->
         <el-menu-item index="/home/warehouse">
           <i class="el-icon-news"></i>
           <span slot="title">库存管理</span>
