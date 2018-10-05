@@ -12,7 +12,7 @@
     <div class="main">
       <div class="main-header">
         <div>
-          <el-button type="primary" @click="dialogVisible = true">新增库存</el-button>
+          <el-button type="primary" @click="openDialog">新增库存</el-button>
         </div>
         <div>
           <el-input style="width: 250px;" v-model.trim.lazy="searchContent" placeholder="请输入内容"></el-input>
@@ -165,8 +165,6 @@ export default {
   },
   created () {
     this._loadData()
-  },
-  mounted () {
     this._loadOptionData()
   },
   methods: {
@@ -218,6 +216,10 @@ export default {
           // console.info('warehouseOptions', this.warehouseOptions)
         }
       })
+    },
+    openDialog () {
+      this._loadOptionData()
+      this.dialogVisible = true
     },
     handleAddStock () {
       console.info(this.addFormData)
