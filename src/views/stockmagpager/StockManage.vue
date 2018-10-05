@@ -15,7 +15,7 @@
           <el-button type="primary" @click="openDialog">新增库存</el-button>
         </div>
         <div>
-          <el-input style="width: 250px;" v-model.trim.lazy="searchContent" placeholder="请输入内容"></el-input>
+          <el-input style="width: 250px;" v-model.trim.lazy="searchContent" placeholder="请输入内容搜索"></el-input>
         </div>
       </div>
       <el-table

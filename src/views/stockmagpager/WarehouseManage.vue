@@ -15,7 +15,7 @@
           <!-- <el-button type="danger" v-show="isShowDeleteButton">批量删除</el-button> -->
         </div>
         <div>
-          <el-input style="width: 250px;" v-model.trim.lazy="searchContent" placeholder="请输入内容">
+          <el-input style="width: 250px;" v-model.trim.lazy="searchContent" placeholder="请输入内容搜索">
             <!-- <i style="margin: 13px 0 0 0" class="el-icon-search" slot="suffix" @click="handleIconSearchClick"></i> -->
           </el-input>
         </div>

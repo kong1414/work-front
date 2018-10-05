@@ -15,7 +15,7 @@
           <!-- <el-button type="danger">批量删除</el-button> -->
         </div>
         <div>
-          <el-input style="width: 250px;" v-model.trim.lazy="searchContent" placeholder="请输入内容">
+          <el-input style="width: 250px;" v-model.trim.lazy="searchContent" placeholder="请输入内容搜索">
             <!-- <i style="margin: 13px 0 0 0" class="el-icon-search" slot="suffix" @click="handleIconSearchClick"></i> -->
           </el-input>
         </div>
@@ -29,7 +29,7 @@
         </el-table-column>
         <el-table-column label="名称">
           <template slot-scope="scope">
-            <el-input v-show="scope.row.show" size="small" v-model="scope.row.name" placeholder="请输入内容" :maxlength="20"></el-input>
+            <el-input v-show="scope.row.show" size="small" v-model="scope.row.name" placeholder="请输入名称" :maxlength="20"></el-input>
             <span v-show="!scope.row.show">{{scope.row.name}}</span>
           </template>
         </el-table-column>
@@ -60,7 +60,7 @@
         </el-table-column>
         <el-table-column label="备注">
           <template slot-scope="scope">
-            <el-input v-show="scope.row.show" size="small" v-model="scope.row.remark" placeholder="请输入内容" :maxlength="20"></el-input>
+            <el-input v-show="scope.row.show" size="small" v-model="scope.row.remark" placeholder="请输入备注" :maxlength="20"></el-input>
             <span v-show="!scope.row.show">{{scope.row.remark}}</span>
           </template>
         </el-table-column>
