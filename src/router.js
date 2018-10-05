@@ -4,6 +4,8 @@ import Router from 'vue-router'
 const Home = () => import('./views/Home') // 父组件
 const IndexPage = () => import('./views/Index') // 首页
 const WarehouseManage = () => import('./views/stockmagpager/WarehouseManage') // 仓库管理
+const StockManage = () => import('./views/stockmagpager/StockManage') // 仓库管理
+const ProductManage = () => import('./views/stockmagpager/ProductManage') // 产品管理
 const UserManage = () => import('./views/systmagpager/UserManage') // 用户管理
 const RoleManage = () => import('./views/systmagpager/RoleManage') // 角色管理
 const AclManage = () => import('./views/systmagpager/AclManage') // 角色管理
@@ -35,6 +37,16 @@ export default new Router({
           path: '/home/warehouse',
           menuName: '仓库管理',
           component: WarehouseManage
+        },
+        {
+          path: '/home/warehouse/stock',
+          menuName: '库存管理',
+          component: StockManage
+        },
+        {
+          path: '/home/product',
+          menuName: '产品管理',
+          component: ProductManage
         },
         {
           path: '/home/usermanage',

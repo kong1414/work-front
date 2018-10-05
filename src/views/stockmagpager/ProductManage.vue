@@ -1,17 +1,17 @@
-<!-- 仓库管理 -->
+<!-- 产品管理 -->
 <template>
-  <div class="base-container warehouse-page">
+  <div class="base-container product-page">
     <div class="header">
       <el-breadcrumb separator-class="el-icon-arrow-right">
         <el-breadcrumb-item :to="{ path: '/home/index' }">首页</el-breadcrumb-item>
-        <el-breadcrumb-item>仓库管理</el-breadcrumb-item>
+        <el-breadcrumb-item>产品管理</el-breadcrumb-item>
       </el-breadcrumb>
-      <h1>仓库管理</h1>
+      <h1>产品管理</h1>
     </div>
     <div class="main">
       <div class="main-header">
         <div>
-          <el-button type="primary" @click="handleAddWarehouse">新增仓库</el-button>
+          <el-button type="primary" @click="handleAddProduct">新增产品</el-button>
           <!-- <el-button type="danger" v-show="isShowDeleteButton">批量删除</el-button> -->
         </div>
         <div>
@@ -33,28 +33,28 @@
             <span v-show="!scope.row.show">{{scope.row.name}}</span>
           </template>
         </el-table-column>
-        <el-table-column label="地址">
+        <el-table-column label="描述">
           <template slot-scope="scope">
-            <el-input v-show="scope.row.show" size="small" v-model="scope.row.address" placeholder="请输入地址" :maxlength="50"></el-input>
-            <span v-show="!scope.row.show">{{scope.row.address}}</span>
+            <el-input v-show="scope.row.show" size="small" v-model="scope.row.description" placeholder="请输入描述" :maxlength="50"></el-input>
+            <span v-show="!scope.row.show">{{scope.row.description}}</span>
           </template>
         </el-table-column>
-        <el-table-column label="状态">
+        <el-table-column label="分类">
           <template slot-scope="scope">
-            <div v-if="!scope.row.show">
-              <el-button size="mini" type="success" v-if="scope.row.status === 1" :disable-transitions="false">启用</el-button>
-              <el-button size="mini" type="info" v-if="scope.row.status === 0" :disable-transitions="false">禁用</el-button>
-            </div>
-            <div v-if="scope.row.show">
-              <el-button size="mini" type="success" v-if="scope.row.status === 1" @click="handleStatus(scope.$index, scope.row)">启用</el-button>
-              <el-button size="mini" type="success" v-if="scope.row.status === 0" @click="handleStatus(scope.$index, scope.row)">禁用</el-button>
-            </div>
+            <el-input v-show="scope.row.show" size="small" v-model="scope.row.classify" placeholder="请输入分类" :maxlength="50"></el-input>
+            <span v-show="!scope.row.show">{{scope.row.classify}}</span>
           </template>
         </el-table-column>
-        <el-table-column label="备注">
+        <el-table-column label="成本价">
           <template slot-scope="scope">
-            <el-input v-show="scope.row.show" size="small" v-model="scope.row.remark" placeholder="请输入备注" :maxlength="50"></el-input>
-            <span v-show="!scope.row.show">{{scope.row.remark}}</span>
+            <el-input v-show="scope.row.show" size="small" @keydown="handleInput" v-model="scope.row.costPrice" placeholder="请输入成本价" :maxlength="50"></el-input>
+            <span v-show="!scope.row.show">{{scope.row.costPrice}}</span>
+          </template>
+        </el-table-column>
+        <el-table-column label="售价">
+          <template slot-scope="scope">
+            <el-input v-show="scope.row.show" size="small" @keydown="handleInput" v-model="scope.row.unitPrice" placeholder="请输入售价" :maxlength="50"></el-input>
+            <span v-show="!scope.row.show">{{scope.row.unitPrice}}</span>
           </template>
         </el-table-column>
         <el-table-column label="操作" width="220px" fixed="right">
@@ -88,9 +88,9 @@
 </template>
 
 <script>
-import { reqWarehouseList, reqDelWarehouse, reqUpdateWarehouse, reqAddWarehouse } from '../../api/stock.js'
+import { reqProductList, reqDelProduct, reqUpdateProduct, reqAddProduct } from '../../api/stock.js'
 export default {
-  name: 'warehousemanager',
+  name: 'productmanager',
   data () {
     return {
       loading: false,
@@ -127,7 +127,7 @@ export default {
     _loadData () {
       this.loading = true
       let params = 'keyword=' + this.searchContent
-      reqWarehouseList(params).then(res => {
+      reqProductList(params).then(res => {
         if (res.resultCode === 200) {
           res.data.forEach(element => {
             element.show = false
@@ -138,7 +138,10 @@ export default {
         }
       })
     },
-    handleAddWarehouse () {
+    handleInput (e) { // 限制小数部分，价格：限制两位小数
+      e.target.value = (e.target.value.match(/^\d*(\.?\d{0,1})/g)[0]) || null
+    },
+    handleAddProduct () {
       let item = { id: '', name: '', address: '', status: 1, remark: '', show: true }
       this.tableData.splice(0, 0, item)
     },
@@ -160,26 +163,28 @@ export default {
     },
     handleDelete (index, row) {
       let params = 'id=' + row.id
-      reqDelWarehouse(params).then(res => {
+      reqDelProduct(params).then(res => {
         if (res.resultCode === 200) {
           this.$message({
             type: 'success',
             message: res.resultMessage
           })
           this._loadData()
-          // console.info(index, row)
         }
       })
     },
     handleSave (index, row) {
-      if (row.id === '' || row.id === null) { // 新增角色的保存
+      this.loading = false
+      if (row.id === '' || row.id === null) { // 新增产品的保存
         let params = {
           name: row.name,
-          address: row.address,
-          status: row.status,
-          remark: row.remark
+          description: row.description,
+          detail: row.detail,
+          costPrice: row.costPrice,
+          unitPrice: row.unitPrice,
+          classify: row.classify
         }
-        reqAddWarehouse(params).then(res => {
+        reqAddProduct(params).then(res => {
           if (res.resultCode === 200) {
             row.show = false
             this.$message({
@@ -191,16 +196,16 @@ export default {
         })
       } else { // 更新角色
         row.show = false
-        // row = JSON.parse(JSON.stringify(this.itemData))
-        // console.info(row)
         let params = {
           id: row.id,
           name: row.name,
-          address: row.address,
-          status: row.statue,
-          remark: row.remark
+          description: row.description,
+          detail: row.detail,
+          costPrice: row.costPrice,
+          unitPrice: row.unitPrice,
+          classify: row.classify
         }
-        reqUpdateWarehouse(params).then(res => {
+        reqUpdateProduct(params).then(res => {
           if (res.resultCode === 200) {
             this.$message({
               type: 'success',
@@ -212,7 +217,6 @@ export default {
       }
     },
     handleCancel (index, row) {
-      // console.info(index, row)
       if (!row.id) {
         this.tableData.splice(index, 1)
       }
@@ -220,14 +224,7 @@ export default {
       row.show = false
     },
     handleDetail (index, row) {
-      this.$router.push({
-        path: '/home/warehouse/stock',
-        query: {
-          warehouseId: row.id,
-          warehouseName: row.name
-        }
-      })
-      // console.info(index, row)
+      this.$alert(row.detail, row.name + ' 详情')
     },
     handleStatus (index, row) {
       if (row.status === 1) {
@@ -242,7 +239,7 @@ export default {
 
 <style lang="scss">
 // 全局引用了基本布局.base-container 文件在base.scss
-.warehouse-page {
+.product-page {
   .main {
     .main-header {
       display: flex;
