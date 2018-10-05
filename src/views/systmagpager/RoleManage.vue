@@ -253,6 +253,7 @@ export default {
       }
       Object(row, this.itemData)
       row.show = false
+      this._loadData()
     },
     handleAcl (index, row) {
       this.AclDialogVisible = true

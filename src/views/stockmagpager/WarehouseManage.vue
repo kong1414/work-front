@@ -189,7 +189,7 @@ export default {
             this._loadData()
           }
         })
-      } else { // 更新角色
+      } else { // 更新仓库
         row.show = false
         // row = JSON.parse(JSON.stringify(this.itemData))
         // console.info(row)
@@ -197,7 +197,7 @@ export default {
           id: row.id,
           name: row.name,
           address: row.address,
-          status: row.statue,
+          status: row.status,
           remark: row.remark
         }
         reqUpdateWarehouse(params).then(res => {
@@ -218,6 +218,7 @@ export default {
       }
       Object(row, this.itemData)
       row.show = false
+      this._loadData()
     },
     handleDetail (index, row) {
       this.$router.push({

@@ -223,6 +223,7 @@ export default {
       }
       Object(row, this.itemData)
       row.show = false
+      this._loadData()
     },
     handleDetail (index, row) {
       this.$alert(row.detail, row.name + ' 详情')
