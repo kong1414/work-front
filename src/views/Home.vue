@@ -78,9 +78,7 @@
       <el-container>
         <el-main>
           <transition name="fade" mode="out-in">
-            <keep-alive>
-              <router-view></router-view>
-            </keep-alive>
+            <router-view></router-view>
           </transition>
         </el-main>
         <el-footer>
