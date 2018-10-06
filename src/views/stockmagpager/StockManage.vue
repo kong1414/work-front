@@ -208,6 +208,9 @@ export default {
         if (res.resultCode === 200) {
           let arr = []
           res.data.forEach(e => {
+            if (e.status === 0) {
+              continue
+            }
             let item = {
               value: e.id,
               label: e.name
