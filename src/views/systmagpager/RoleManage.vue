@@ -1,6 +1,6 @@
 <!-- 角色管理 -->
 <template>
-  <div class="base-container user-page">
+  <div class="base-container role-page">
     <div class="header">
       <el-breadcrumb separator-class="el-icon-arrow-right">
         <el-breadcrumb-item :to="{ path: '/home/index' }">首页</el-breadcrumb-item>
@@ -271,7 +271,7 @@ export default {
 
 <style lang="scss">
 // 全局引用了基本布局.base-container 文件在base.scss
-.user-page {
+.role-page {
   .main {
     .main-header {
       display: flex;

@@ -50,3 +50,9 @@ export const reqUpdateStock = params => { // 更新库存
 export const reqStockListByWarehouseId = params => { // 获取产品在库存中的详情
   return axios.post(`${BASE_URL}/stock/listByWarehouseId?` + params).then(res => res.data)
 }
+
+/* 入库模块接口 */
+
+export const reqStockList = params => { // 获取入库信息表
+  return axios.post(`${BASE_URL}/stocklist/list?` + params).then(res => res.data)
+}

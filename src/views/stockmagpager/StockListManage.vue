@@ -1,18 +1,18 @@
 <!-- 库存管理 -->
 <template>
-  <div class="base-container stock-page">
+  <div class="base-container stockList-page">
     <div class="header">
       <el-breadcrumb separator-class="el-icon-arrow-right">
         <el-breadcrumb-item :to="{ path: '/home/index' }">首页</el-breadcrumb-item>
-        <el-breadcrumb-item :to="{ path: '/home/warehouse' }">库存管理</el-breadcrumb-item>
-        <el-breadcrumb-item>库存管理</el-breadcrumb-item>
+        <el-breadcrumb-item>入库管理</el-breadcrumb-item>
       </el-breadcrumb>
-      <h1>{{this.warehouseName}} - 库存管理</h1>
+      <h1>入库管理</h1>
     </div>
     <div class="main">
       <div class="main-header">
         <div>
           <el-button type="primary" @click="openDialog">新增库存</el-button>
+          <el-button type="info">增强查询</el-button>
         </div>
         <div>
           <el-input style="width: 250px;" v-model.trim.lazy="searchContent" placeholder="请输入内容搜索">
@@ -22,51 +22,51 @@
       </div>
       <el-table
         :data="tableData"
-        @selection-change="handleSelectionChange"
         v-loading="loading"
         style="width: 100%;margin: 10px 0">
-        <el-table-column type="selection" width="55">
+        <el-table-column label="" width="80">
+          <template slot-scope="scope">
+            <span>{{scope.row.id}}</span>
+          </template>
         </el-table-column>
-        <el-table-column label="产品ID">
+        <el-table-column label="产品ID" width="80">
           <template slot-scope="scope">
             <span>{{scope.row.productId}}</span>
           </template>
         </el-table-column>
-        <el-table-column label="产品名称">
+        <el-table-column label="产品名称" min-width="100">
           <template slot-scope="scope">
             <span>{{scope.row.productName}}</span>
           </template>
         </el-table-column>
-        <el-table-column label="分类">
+        <el-table-column label="仓库ID" width="80">
           <template slot-scope="scope">
-            <span>{{scope.row.classify}}</span>
+            <span>{{scope.row.productId}}</span>
+          </template>
+        </el-table-column>
+        <el-table-column label="仓库名称"  min-width="100">
+          <template slot-scope="scope">
+            <span>{{scope.row.productName}}</span>
+          </template>
+        </el-table-column>
+        <el-table-column label="单价">
+          <template slot-scope="scope">
+            <span>{{scope.row.unitPrice}}</span>
           </template>
         </el-table-column>
         <el-table-column label="数量">
           <template slot-scope="scope">
-            <el-input v-show="scope.row.show" size="small" @keydown="handleInput" type="number" v-model.number="scope.row.quantity" min="1" placeholder="请输入数量"></el-input>
-            <span v-show="!scope.row.show">{{scope.row.quantity}}</span>
+            <span>{{scope.row.quantity}}</span>
           </template>
         </el-table-column>
-        <el-table-column label="操作" width="220px" fixed="right">
+        <el-table-column label="时间" width="170px">
           <template slot-scope="scope">
-            <div v-if="scope.row.show">
-              <el-button
-                size="mini"
-                @click="handleSave(scope.$index, scope.row)">保存</el-button>
-              <el-button
-                size="mini"
-                @click="handleCancel(scope.$index, scope.row)">取消</el-button>
-            </div>
-            <div v-else>
-              <el-button
-                size="mini"
-                @click="handleEdit(scope.$index, scope.row)">修改</el-button>
-              <el-button
-                size="mini"
-                type="danger"
-                @click="handleDelete(scope.$index, scope.row)">删除</el-button>
-            </div>
+            <span>{{ purchaseTime(scope.row.purchaseTime)}}</span>
+          </template>
+        </el-table-column>
+        <el-table-column label="操作人">
+          <template slot-scope="scope">
+            <span>{{scope.row.userName}}</span>
           </template>
         </el-table-column>
       </el-table>
@@ -122,18 +122,16 @@
 </template>
 
 <script>
-import { reqStockListByWarehouseId, reqDelStockById, reqUpdateStock, reqAddStock, reqProductListByName, reqWarehouseList } from '../../api/stock.js'
+import { reqStockList, reqAddStock, reqProductListByName, reqWarehouseList } from '../../api/stock.js'
+import dataUtil from '../../util/dataUtil.js'
 export default {
-  name: 'stockmanager',
+  name: 'stocklistmanager',
   data () {
     return {
-      warehouseId: 0,
-      warehouseName: '',
       dialogVisible: false, // 新增库存弹窗
       loading: false,
       ids: [],
       isShowDeleteButton: false, // 批量删除
-      itemData: {}, // 编辑的暂存对象
       searchContent: '',
       tableData: [],
       addFormData: { // 新增库存的表单数据
@@ -142,8 +140,7 @@ export default {
         quantity: 0
       },
       productOptions: [],
-      warehouseOptions: [],
-      formLoading: false
+      warehouseOptions: []
     }
   },
   watch: {
@@ -171,11 +168,8 @@ export default {
   },
   methods: {
     _loadData () {
-      this.warehouseId = this.$route.query.warehouseId
-      this.warehouseName = this.$route.query.warehouseName
-      this.loading = true
-      let params = 'warehouseId=' + this.warehouseId + '&keyword=' + this.searchContent
-      reqStockListByWarehouseId(params).then(res => {
+      let params = 'keyword=' + this.searchContent
+      reqStockList(params).then(res => {
         if (res.resultCode === 200) {
           res.data.forEach(element => {
             element.show = false
@@ -185,9 +179,6 @@ export default {
           // console.info(this.tableData)
         }
       })
-    },
-    handleInput (e) { // 限制 只能整数
-      e.target.value = e.target.value.replace(/[^\d]/g, '')
     },
     _loadOptionData () {
       reqProductListByName().then(res => {
@@ -218,6 +209,12 @@ export default {
           // console.info('warehouseOptions', this.warehouseOptions)
         }
       })
+    },
+    handleInput (e) { // 限制 只能整数
+      e.target.value = e.target.value.replace(/[^\d]/g, '')
+    },
+    purchaseTime (time) {
+      return dataUtil.getStrData(time)
     },
     openDialog () {
       this._loadOptionData()
@@ -252,45 +249,6 @@ export default {
         })
         this.ids = arr
       }
-    },
-    handleEdit (index, row) {
-      row.show = !row.show
-      this.itemData = JSON.parse(JSON.stringify(row))
-      // console.info(index, row)
-    },
-    handleDelete (index, row) {
-      let params = 'id=' + row.id
-      reqDelStockById(params).then(res => {
-        if (res.resultCode === 200) {
-          this.$message({
-            type: 'success',
-            message: res.resultMessage
-          })
-          this._loadData()
-        }
-      })
-    },
-    handleSave (index, row) {
-      let params = {
-        id: row.id,
-        productId: row.productId,
-        warehouseId: row.warehouseId,
-        quantity: row.quantity
-      }
-      reqUpdateStock(params).then(res => {
-        if (res.resultCode === 200) {
-          this.$message({
-            type: 'success',
-            message: res.resultMessage
-          })
-          row.show = false
-          this._loadData()
-        }
-      })
-    },
-    handleCancel (index, row) {
-      row.show = false
-      this._loadData()
     }
   }
 }
@@ -298,7 +256,7 @@ export default {
 
 <style lang="scss">
 // 全局引用了基本布局.base-container 文件在base.scss
-.stock-page {
+.stockList-page {
   .main {
     .main-header {
       display: flex;
