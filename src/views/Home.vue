@@ -112,18 +112,21 @@ export default {
     },
     handleClose (key, keyPath) {
       console.log(key, keyPath)
+    },
+    windowsChange () {
+      // 监听窗口改变，当宽度小于768是隐藏侧边栏
+      window.addEventListener('resize', () => {
+        let width = document.body.clientWidth
+        if (width <= 1024) {
+          this.collapsed = true
+        } else {
+          this.collapsed = false
+        }
+      })
     }
   },
   mounted () {
-    // 监听窗口改变，当宽度小于768是隐藏侧边栏
-    window.addEventListener('resize', () => {
-      let width = document.body.clientWidth
-      if (width <= 1024) {
-        this.collapsed = true
-      } else {
-        this.collapsed = false
-      }
-    })
+    this.windowsChange()
   }
 }
 </script>
@@ -191,6 +194,9 @@ export default {
         // min-height: -webkit-calc(100% - 64px);
         // min-height: calc(100% - 64px);
         // height: auto !important;
+        min-width: -moz-calc(1280px - 250px);
+        min-width: -webkit-calc(1280px - 250px);
+        min-width: calc(1024px - 250px);
         box-sizing: border-box;
         padding: 0px;
       }

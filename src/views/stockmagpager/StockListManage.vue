@@ -4,15 +4,16 @@
     <div class="header">
       <el-breadcrumb separator-class="el-icon-arrow-right">
         <el-breadcrumb-item :to="{ path: '/home/index' }">首页</el-breadcrumb-item>
-        <el-breadcrumb-item>入库管理</el-breadcrumb-item>
+        <el-breadcrumb-item>入库记录</el-breadcrumb-item>
       </el-breadcrumb>
-      <h1>入库管理</h1>
+      <h1>入库记录</h1>
     </div>
     <div class="main">
       <div class="main-header">
         <div>
           <el-button type="primary" @click="openDialog">新增库存</el-button>
-          <el-button type="info">增强查询</el-button>
+          <el-button type="info" @click="customQueryShow">高级查询</el-button>
+          <el-button type="info" @click="customQueryReset">重置</el-button>
         </div>
         <div>
           <el-input style="width: 250px;" v-model.trim.lazy="searchContent" placeholder="请输入内容搜索">
@@ -20,6 +21,21 @@
           </el-input>
         </div>
       </div>
+      <div v-if="showCustomQuery">
+        <custom-select v-for="(query,index) in customQueryList"
+          :index="index"
+          :key="index"
+          :condition="query"
+          @deleteQuery="deleteQuery"
+          @conditionChange="conditionChange"
+          @customQueryStart="customQueryStart"
+          >
+        </custom-select>
+        <span class="addquery">
+          <el-button @click="addquery"><i class="el-icon-plus"></i>新增条件</el-button>
+        </span>
+      </div>
+
       <el-table
         :data="tableData"
         v-loading="loading"
@@ -46,7 +62,7 @@
         </el-table-column>
         <el-table-column label="仓库名称"  min-width="100">
           <template slot-scope="scope">
-            <span>{{scope.row.productName}}</span>
+            <span>{{scope.row.warehouseName}}</span>
           </template>
         </el-table-column>
         <el-table-column label="单价">
@@ -124,8 +140,12 @@
 <script>
 import { reqStockList, reqAddStock, reqProductListByName, reqWarehouseList } from '../../api/stock.js'
 import dataUtil from '../../util/dataUtil.js'
+import CustomSelect from './CustomSelect'
 export default {
   name: 'stocklistmanager',
+  components: {
+    CustomSelect
+  },
   data () {
     return {
       dialogVisible: false, // 新增库存弹窗
@@ -140,7 +160,33 @@ export default {
         quantity: 0
       },
       productOptions: [],
-      warehouseOptions: []
+      warehouseOptions: [],
+      // questionOptions: [ // 自定义查询第一个选项
+      //   {
+      //     value: 'selectWarehouse',
+      //     label: '仓库'
+      //   },
+      //   {
+      //     value: 'selectProduct',
+      //     label: '产品'
+      //   },
+      //   {
+      //     value: 'selectUnitPrice',
+      //     label: '单价'
+      //   },
+      //   {
+      //     value: 'selectQuantity',
+      //     label: '数量'
+      //   },
+      //   {
+      //     value: 'selectDate',
+      //     label: '时间'
+      //   }
+      // ],
+      customQueryList: [ // 自定义查询
+      ],
+      showCustomQuery: false, // 是否展示自定义查询
+      test: ''
     }
   },
   watch: {
@@ -168,6 +214,7 @@ export default {
   },
   methods: {
     _loadData () {
+      this.loading = true
       let params = 'keyword=' + this.searchContent
       reqStockList(params).then(res => {
         if (res.resultCode === 200) {
@@ -249,7 +296,167 @@ export default {
         })
         this.ids = arr
       }
-    }
+    },
+    addquery () {
+      let length = this.customQueryList.length
+      if (length > 10 || (length && !this.customQueryList[length - 1].title)) {
+        return
+      }
+      this.customQueryList.push({
+        title: '',
+        type: '',
+        content: '',
+        contentArray: '',
+        contentDate: [],
+        contentRange: [1, 100],
+        contentNumber: 0
+      })
+    },
+    deleteQuery (index) {
+      console.info(1,this.customQueryList)
+      this.customQueryList.splice(index, 1)
+      console.info(2,this.customQueryList)
+    },
+    conditionChange (index, condition) {
+      this.customQueryList[index] = condition
+      console.info(this.customQueryList)
+    },
+    customQueryShow () {
+      this.showCustomQuery = !this.showCustomQuery
+    },
+    customQueryReset () {
+      this._loadData()
+      this.customQueryList = []
+    },
+    customQueryStart () {
+      // console.info(this.customQueryList)
+      this.tableData = this.customQuery(this.tableData, this.customQueryList)
+      // console.info(this.tableData)
+
+    },
+    customQuery (data, conditions) { // 循环调用
+      this.loading = true
+      let params = 'keyword=' + this.searchContent
+      reqStockList(params).then(res => {
+        if (res.resultCode === 200) {
+          let arr = res.data
+          
+          this.customQueryList.forEach(condition => {
+            arr = this.conditionQuery(arr, condition)
+          })
+
+          this.tableData = arr
+          this.loading = false
+        }
+      })
+    },
+    conditionQuery (data, condition) {
+      let arr = []
+      if (condition.title === 'selectProduct') {
+        arr = this.querySelectProduct(data, condition)
+      } else if (condition.title === 'selectWarehouse') {
+        arr = this.querySelectWarehouse(data, condition)
+      } else if (condition.title === 'selectUnitPrice') {
+        arr = this.querySelectUnitPrice(data, condition)
+      } else if (condition.title === 'selectQuantity') {
+        arr = this.querySelectQuantity(data, condition)
+      } else if (condition.title === 'selectDate') {
+        arr = this.querySelectDate(data, condition) 
+      }
+      return arr
+    },
+    querySelectProduct (data, condition) { // 产品自定义查询函数
+      if (condition.contentArray.length <= 0) {
+        return data
+      }
+      let arr = []
+      if (condition.type === 'true') {
+        data.forEach(item => {
+          if (condition.contentArray.indexOf(item.productId) >= 0) {
+            arr.push(item)
+          }
+        })
+      } else if (condition.type === 'false') {
+        data.forEach(item => {
+          if (condition.contentArray.indexOf(item.productId) < 0) {
+            arr.push(item)
+          }
+        })
+      }
+      return arr
+    },
+    querySelectWarehouse (data, condition) { // 仓库自定义查询函数
+      if (condition.contentArray.length <= 0) {
+        return data
+      }
+      let arr = []
+      if (condition.type === 'true') {
+        data.forEach(item => {
+          if (condition.contentArray.indexOf(item.warehouseId) >= 0) {
+            arr.push(item)
+          }
+        })
+      } else if (condition.type === 'false') {
+        data.forEach(item => {
+          if (condition.contentArray.indexOf(item.warehouseId) < 0) {
+            arr.push(item)
+          }
+        })
+      }
+      return arr
+    },
+    querySelectUnitPrice (data, condition) {
+      let arr = []
+      if (condition.type === 'scope') {
+        data.forEach(item => {
+          if (item.unitPrice >= condition.contentRange[0] && item.unitPrice <= condition.contentRange[1]) {
+            arr.push(item)
+          }
+        })
+      } else if (condition.type === 'confirm') {
+        data.forEach(item => {
+          if (item.unitPrice === condition.contentNumber) {
+            arr.push(item)
+          }
+        })
+      }
+      return arr
+    },
+    querySelectQuantity (data, condition) {
+      let arr = []
+      if (condition.type === 'scope') {
+        data.forEach(item => {
+          if (item.quantity >= condition.contentRange[0] && item.quantity <= condition.contentRange[1]) {
+            arr.push(item)
+          }
+        })
+      } else if (condition.type === 'confirm') {
+        data.forEach(item => {
+          if (item.quantity === condition.contentNumber) {
+            arr.push(item)
+          }
+        })
+      }
+      return arr
+    },
+    querySelectDate (data, condition) {
+      if (condition.contentDate[0] === '' || condition.contentDate[1] === '') {
+        return data
+      }
+      let arr = []
+      data.forEach(item => {
+        let date = new Date(item.purchaseTime)
+        let daterange = [
+          new Date(condition.contentDate[0]),
+          new Date(condition.contentDate[1])
+        ]
+        if (date.getTime() >= daterange[0].getTime() && date.getTime() <= daterange[1].getTime()) {
+          arr.push(item)
+          console.info(arr)
+        }
+      })
+      return arr
+    },
   }
 }
 </script>
@@ -261,6 +468,19 @@ export default {
     .main-header {
       display: flex;
       justify-content: space-between;
+    }
+  }
+  .addquery {
+    // 新增查询按钮
+    .el-button {
+      margin-top: 10px;
+      border: dashed 1px #dcdfe6;
+      max-width: 760px;
+      width: 100%;
+      color: #c0c4cc;
+    }
+    i {
+      margin-right: 5px;
     }
   }
 }

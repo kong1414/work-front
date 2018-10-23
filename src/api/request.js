@@ -6,7 +6,7 @@ import {
 import {
   Message
 } from 'element-ui'
-// import store from '../store'
+import store from '../store'
 import router from '../router'
 
 // 封装axios请求
@@ -15,17 +15,17 @@ axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded
 axios.defaults.headers.post['Access-Control-Allow-Origin'] = '*' // 配置请求头
 
 // 发送请求之前调用拦截器
-// axios.interceptors.request.use(config => {
-//   // 请求header加token
-//   if (!config.url.endsWith('login')) {
-//     if (store.getters.token) {
-//       config.headers.token = store.getters.token
-//     }
-//   }
-//   return config
-// }, error => {
-//   return Promise.reject(error)
-// })
+axios.interceptors.request.use(config => {
+  // 请求header加token
+  if (!config.url.endsWith('login')) {
+    if (store.getters.token) {
+      config.headers.token = store.getters.token
+    }
+  }
+  return config
+}, error => {
+  return Promise.reject(error)
+})
 
 // 请求成功经过拦截器
 axios.interceptors.response.use(response => {

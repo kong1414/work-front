@@ -1,6 +1,6 @@
 <template>
   <div class="login-page">
-    <div class="logo"><span>XX管理系统</span></div>
+    <div class="logo"><span>新一代库存管理系统</span></div>
     <div class="login">
       <el-tabs v-model="loginType" @tab-click="loginTypeHandle" class="login-tab-pane">
         <el-tab-pane label="用户登陆" name="account">
@@ -12,7 +12,6 @@
                 :fetch-suggestions="querySearchAsync"
                 placeholder="请输入账号"
                 @select="handleSelect"
-
               ></el-autocomplete>
             </el-form-item>
             <el-form-item prop="password" class="login-input">
@@ -62,6 +61,7 @@
 import { reqLogin, reqQueryAccount } from '../api/login.js'
 import { ERR_OK } from '../api/config.js'
 import md5 from 'js-md5'
+import { mapActions } from 'vuex'
 export default {
   name: 'login',
   data () {
@@ -92,6 +92,10 @@ export default {
   created () {
   },
   methods: {
+    ...mapActions([
+      'saveUser',
+      'saveToken'
+    ]),
     loginTypeHandle () {
       // console.info(this.loginType)
     },
@@ -117,11 +121,11 @@ export default {
             message: '登录成功！',
             type: 'success'
           })
-          this.$router.push({ path: '/home/index' })
-          // this.saveUser(res.data)
-          // this.saveToken(res.data.token)
-          // this._loadMenus()
+          this.saveUser(res.data)
+          this.saveToken(res.data.token)
           this.fullscreenLoading = false
+          this.$router.push({ path: '/home/index' })
+          // this._loadMenus()
         } else {
           this.errPasswordCount++
           this.fullscreenLoading = false

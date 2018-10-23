@@ -234,6 +234,9 @@ export default {
       } else if (row.status === 0) {
         row.status = 1
       }
+    },
+    test () {
+      console.info(null)
     }
   }
 }
