@@ -14,7 +14,7 @@
       <div class="topbar-account">
         <el-dropdown>
           <span class="el-dropdown-link userinfo-inner">
-            admin
+            {{this.$store.state.user.username}}
             <i style="padding-left:5px" class="el-icon-caret-bottom"></i>
           </span>
           <el-dropdown-menu slot="dropdown">
@@ -86,16 +86,79 @@
         </el-footer>
       </el-container>
     </el-container>
+    <el-dialog :close-on-click-modal="false" title="修改密码" :visible.sync="dialogChangePwd" width="28%" class="change-pwd-dialog">
+      <div class="dialog-content">
+        <el-form :model="passwords" :rules="rules" label-width="80px" ref="passForm" >
+          <el-form-item label="原密码" prop="oldPass">
+            <el-input v-model="passwords.oldPass" type="password" placeholder="请输入原密码"></el-input>
+          </el-form-item>
+          <el-form-item label="新密码" prop="newPass">
+            <el-input v-model="passwords.newPass" type="password" placeholder="请输入至少6个字符"></el-input>
+          </el-form-item>
+          <el-form-item label="确认密码" prop="againpwd" >
+            <el-input v-model="passwords.againpwd" type="password" placeholder="请再次输入新密码"></el-input>
+          </el-form-item>
+        </el-form>
+      </div>
+      <div class="dialog-footer">
+        <el-button size="small" @click="cancledialog('passForm')">取消</el-button>
+        <el-button size="small" @click="changePwd('passForm')" type="primary">确定</el-button>
+      </div>
+    </el-dialog>
   </el-container>
 </template>
 
 <script>
+import md5 from 'js-md5'
+import { reqUpdatePwd } from '../api/login.js'
 // @ is an alias to /src
 export default {
   name: 'home',
   data () {
+    var checkOldPass = (rule, value, callback) => {
+      if (!value) {
+        return callback(new Error('旧密码不能为空'))
+      } else {
+        callback()
+      }
+    }
+    var checkNewPass = (rule, value, callback) => {
+      if (!value) {
+        return callback(new Error('新密码不能为空'))
+      } else if (value.length < 6) {
+        return callback(new Error('密码长度不能小于6个字符'))
+      } else {
+        callback()
+      }
+    }
+    var checkNewPassAgain = (rule, value, callback) => {
+      if (!value) {
+        return callback(new Error('再次输入密码不能为空'))
+      } else if (value !== this.passwords.newPass) {
+        return callback(new Error('两次输入的密码不一致'))
+      } else {
+        callback()
+      }
+    }
     return {
-      collapsed: false
+      collapsed: false,
+      dialogChangePwd: false,
+      passwords: {
+        oldPass: '',
+        newPass: '',
+        againpwd: ''
+      },
+      rules: {
+        oldPass: [
+          { request: true, validator: checkOldPass, trigger: 'blur' }
+        ],
+        newPass: [
+          { request: true, validator: checkNewPass, trigger: 'blur' }
+        ],
+        againpwd: [
+          { request: true, validator: checkNewPassAgain, trigger: 'blur' }
+        ]
+      }
     }
   },
   computed: {
@@ -123,6 +186,50 @@ export default {
           this.collapsed = false
         }
       })
+    },
+    logout () {
+      var _this = this
+      this.$confirm('确认退出吗?', '提示', {
+        // type: 'warning'
+      }).then(() => {
+        localStorage.removeItem('vuex')
+        _this.$router.push('/login')
+      }).catch(() => {})
+    },
+    changePasswords () {
+      this.dialogChangePwd = true
+    },
+    changePwd (rules) { // 修改密码
+      this.$refs.passForm.validate((value) => {
+        if (value) {
+          let params = {}
+          params.oldPass = md5(this.passwords.oldPass + this.passwords.oldPass)
+          params.newPass = md5(this.passwords.newPass + this.passwords.oldPass)
+          console.info(params)
+          reqUpdatePwd(params).then(res => {
+            if (res.resultCode === 200) {
+              this.$message({
+                duration: 1500,
+                message: '修改密码成功！',
+                type: 'success'
+              })
+              this.passwords = {}
+              this.$router.push('/login')
+            }
+          })
+        } else {
+          return false
+        }
+      })
+    },
+    cancledialog (rules) {
+      this.dialogChangePwd = false
+      this.passwords = {
+        oldPass: '',
+        newPass: '',
+        againpwd: ''
+      }
+      this.$refs[rules].resetFields()
     }
   },
   mounted () {
@@ -207,6 +314,30 @@ export default {
           color: #aaabab;
           font-size: 14px;
         }
+      }
+    }
+  }
+}
+.change-pwd-dialog{
+  .el-dialog__header {
+    border-bottom: 1px solid #e8e8e8;
+  }
+  .dialog-footer {
+    padding: 10px 20px;
+    text-align: right;
+    border-top: 1px solid #e8e8e8;
+  }
+  .el-dialog__header {
+    border-bottom: 1px solid #e8e8e8;
+  }
+  .el-dialog__body {
+    padding: 0;
+    margin: 0;
+    .dialog-content{
+      padding: 22px 22px 0 22px;
+      .el-form-item__content {
+        height: 40px;
+        line-height: 25px;
       }
     }
   }

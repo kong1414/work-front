@@ -17,7 +17,10 @@
             <el-form-item prop="password" class="login-input">
               <el-input type="password" v-model="account.password" auto-complete="off" placeholder="请输入密码" @keyup.enter.native="handleLogin"></el-input>
             </el-form-item>
-            <el-checkbox v-model="checked" checked class="remember">下次自动登录</el-checkbox>
+            <el-row type="flex" class="row-bg" justify="space-between">
+              <el-checkbox v-model="checked" checked class="remember">下次自动登录</el-checkbox>
+              <el-button type="text" @click="toRegister">免费注册</el-button>
+            </el-row>
             <el-form-item class="login-btn" >
               <el-button type="primary" @click="handleLogin" v-loading.fullscreen.lock="fullscreenLoading">登录</el-button>
             </el-form-item>
@@ -154,6 +157,9 @@ export default {
     },
     handleSelect () {
       console.info(this.autocompleteData)
+    },
+    toRegister () {
+      this.$router.push({ path: '/register' })
     }
   }
 }

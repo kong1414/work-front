@@ -10,7 +10,7 @@ const ProductManage = () => import('./views/stockmagpager/ProductManage') // 产
 const UserManage = () => import('./views/systmagpager/UserManage') // 用户管理
 const RoleManage = () => import('./views/systmagpager/RoleManage') // 角色管理
 const AclManage = () => import('./views/systmagpager/AclManage') // 权限管理
-
+const Register = () => import('./views/Register.vue')
 Vue.use(Router)
 
 export default new Router({
@@ -23,6 +23,11 @@ export default new Router({
       path: '/login',
       name: 'login',
       component: () => import('./views/Login.vue')
+    },
+    {
+      path: '/register',
+      name: 'register',
+      component: Register
     },
     {
       path: '/home',
