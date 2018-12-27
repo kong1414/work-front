@@ -73,6 +73,9 @@
           <el-menu-item index="/home/aclmanage">
             <span slot="title">权限管理</span>
           </el-menu-item>
+          <el-menu-item index="/home/dictionary">
+            <span slot="title">数据字典</span>
+          </el-menu-item>
         </el-submenu>
       </el-menu>
       <el-container>

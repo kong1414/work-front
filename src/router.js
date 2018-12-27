@@ -11,6 +11,8 @@ const UserManage = () => import('./views/systmagpager/UserManage') // 用户管�
 const RoleManage = () => import('./views/systmagpager/RoleManage') // 角色管理
 const AclManage = () => import('./views/systmagpager/AclManage') // 权限管理
 const Register = () => import('./views/Register.vue')
+const Dictionary = () => import('./views/systmagpager/Dictionary.vue') // 数据字典
+
 Vue.use(Router)
 
 export default new Router({
@@ -73,6 +75,11 @@ export default new Router({
           path: '/home/aclmanage',
           menuName: '权限管理',
           component: AclManage
+        },
+        {
+          path: '/home/dictionary',
+          menuName: '数据字典',
+          component: Dictionary
         }
       ]
     }
