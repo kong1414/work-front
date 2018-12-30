@@ -10,12 +10,12 @@
               <el-autocomplete
                 v-model="account.name"
                 :fetch-suggestions="querySearchAsync"
-                placeholder="请输入账号"
+                placeholder="请输入账号/admin"
                 @select="handleSelect"
               ></el-autocomplete>
             </el-form-item>
             <el-form-item prop="password" class="login-input">
-              <el-input type="password" v-model="account.password" auto-complete="off" placeholder="请输入密码" @keyup.enter.native="handleLogin"></el-input>
+              <el-input type="password" v-model="account.password" auto-complete="off" placeholder="请输入密码/123456" @keyup.enter.native="handleLogin"></el-input>
             </el-form-item>
             <el-row type="flex" class="row-bg" justify="space-between">
               <el-checkbox v-model="checked" checked class="remember">下次自动登录</el-checkbox>
@@ -33,7 +33,7 @@
             </el-form-item>
             <el-form-item prop="password" class="login-input">
               <el-input type="password" v-model="account.password" auto-complete="off" placeholder="请输入验证码" @keyup.enter.native="handleLogin">
-                <el-button slot="append">发送验证码</el-button>
+                <el-button slot="append" @click="sendVerificationCode">发送验证码</el-button>
               </el-input>
             </el-form-item>
             <el-form-item class="login-btn" >
@@ -160,6 +160,12 @@ export default {
     },
     toRegister () {
       this.$router.push({ path: '/register' })
+    },
+    sendVerificationCode () {
+      this.$message({
+        message: '尚未开发',
+        type: 'info'
+      })
     }
   }
 }
