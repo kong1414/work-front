@@ -313,9 +313,9 @@ export default {
       })
     },
     deleteQuery (index) {
-      console.info(1,this.customQueryList)
+      console.info(1, this.customQueryList)
       this.customQueryList.splice(index, 1)
-      console.info(2,this.customQueryList)
+      console.info(2, this.customQueryList)
     },
     conditionChange (index, condition) {
       this.customQueryList[index] = condition
@@ -332,7 +332,6 @@ export default {
       // console.info(this.customQueryList)
       this.tableData = this.customQuery(this.tableData, this.customQueryList)
       // console.info(this.tableData)
-
     },
     customQuery (data, conditions) { // 循环调用
       this.loading = true
@@ -340,7 +339,6 @@ export default {
       reqStockList(params).then(res => {
         if (res.resultCode === 200) {
           let arr = res.data
-          
           this.customQueryList.forEach(condition => {
             arr = this.conditionQuery(arr, condition)
           })
@@ -361,7 +359,7 @@ export default {
       } else if (condition.title === 'selectQuantity') {
         arr = this.querySelectQuantity(data, condition)
       } else if (condition.title === 'selectDate') {
-        arr = this.querySelectDate(data, condition) 
+        arr = this.querySelectDate(data, condition)
       }
       return arr
     },
@@ -456,7 +454,7 @@ export default {
         }
       })
       return arr
-    },
+    }
   }
 }
 </script>
