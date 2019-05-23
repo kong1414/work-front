@@ -1,4 +1,7 @@
 # work-front
+库存管理系统的前端代码
+
+作为一个学习项目
 
 ## Project setup
 ```
